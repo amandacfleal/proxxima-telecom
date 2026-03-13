@@ -1,42 +1,40 @@
 import { useState } from 'react';
+import logoProxxima from './assets/Logo_Proxxima_Telecom.svg';
 import './App.css';
 
 function App() {
+  // --- 1. ESTADOS ---
   const [exibir, setExibir] = useState(false);
   const [portaAtiva, setPortaAtiva] = useState<any>(null);
-  const [logs, setLogs] = useState<any[]>([]);
+ // Verifique se estes estão EXATAMENTE aqui:
+const [menuAberto, setMenuAberto] = useState(true);
+const [temaEscuro, setTemaEscuro] = useState(true);
+const [isLoggedIn, setIsLoggedIn] = useState(false);
+const [usuario, setUsuario] = useState({ nome: '', cargo: '' });
+const alternarTema = () => {
+  const novo = temaEscuro ? 'light' : 'dark';
+  setTemaEscuro(!temaEscuro);
+  document.documentElement.setAttribute('data-theme', novo);
+};
+  // Adicione esta linha no topo, junto com os outros states:
+const [logs, setLogs] = useState<any[]>([]);
+  // Estados do Modal
+  const [modalAberto, setModalAberto] = useState(false);
+  const [portaParaVincular, setPortaParaVincular] = useState<number | null>(null);
+  const [novoCliente, setNovoCliente] = useState({ nome: '', protocolo: '', serial: '' });
 
-  // Dados com os novos estados dinâmicos
-  const dadosPortas = [
+  // Estado das Portas
+  const [listaPortas, setListaPortas] = useState([
     { id: 1, status: 'p-good', sinal: -19.4, cliente: 'amanda_proxxima', sn: 'HWTC12345', alarme: 'Sinal Normal' },
     { id: 2, status: 'p-free', sinal: 0, cliente: '-', sn: '-', alarme: 'Livre' },
     { id: 3, status: 'p-loss', sinal: -40.0, cliente: 'fibra_rompida_res', sn: 'HWTC00000', alarme: 'LOSS (Fiber Cut)' },
+    { id: 4, status: 'p-free', sinal: 0, cliente: '-', sn: '-', alarme: 'Livre' },
     { id: 5, status: 'p-warn', sinal: -28.2, cliente: 'atenuado_cto', sn: 'HWTC99887', alarme: 'Atenuação Alta' },
     { id: 8, status: 'p-dying', sinal: -99.9, cliente: 'casa_sem_energia', sn: 'HWTC55555', alarme: 'Dying Gasp (Power)' },
-  ];
-// Adicione este estado para controlar a OS gerada
-const [osGerada, setOsGerada] = useState<any>(null);
+  ]);
 
-const gerarOS = () => {
-  if (!portaAtiva) return;
+  // --- 2. FUNÇÕES ---
 
-  const novaOS = {
-    numero: `OS-${portaAtiva.status === 'p-loss' ? 'LOS' : 'ATT'}-${Math.floor(Math.random() * 9000)}`,
-    tecnico_sugerido: portaAtiva.status === 'p-loss' ? 'Equipe de Lançamento' : 'Técnico de Instalação',
-    prioridade: portaAtiva.status === 'p-loss' ? 'CRÍTICA' : 'ALTA',
-    resumo_tecnico: {
-      cto: "CTO-CENTRO-01",
-      porta: portaAtiva.id,
-      sinal_dbm: portaAtiva.sinal,
-      tipo_erro: portaAtiva.alarme,
-      serial_onu: portaAtiva.sn,
-      coordenadas: "-7.2245, -35.8831"
-    }
-  };
-
-  setOsGerada(novaOS);
-  registrarLog("OS GERADA", `Protocolo ${novaOS.numero} enviado para o despacho.`);
-};
   const registrarLog = (acao: string, msg: string) => {
     const novo = { 
       protocolo: `PRX-${Math.floor(100000 + Math.random() * 900000)}`, 
@@ -47,32 +45,93 @@ const gerarOS = () => {
     };
     setLogs(prev => [novo, ...prev]);
   };
-// 1. Novo estado para o input da OS
-const [numOSTecnico, setNumOSTecnico] = useState('');
 
-// 2. Função para vincular a OS no Log de Auditoria
-const vincularOSManual = () => {
-  if (!numOSTecnico) return alert("Por favor, insira o número da OS de campo.");
-  
-  // Aqui usamos a função registrarLog que você já tem
-  registrarLog("VINCULO_OS", `Briefing técnico vinculado à OS de campo: ${numOSTecnico}`);
-  
-  alert(`Protocolo vinculado com sucesso à OS ${numOSTecnico}`);
-  setNumOSTecnico(''); // Limpa o campo após vincular
-};
+  const handleCliquePorta = (p: any) => {
+    if (p.status === 'p-free') {  
+      setPortaParaVincular(p.id); 
+      setModalAberto(true);
+    } else {
+      setPortaAtiva(p);
+    }
+  };
+if (!isLoggedIn) {
+  return (
+    <div className="login-overlay">
+      <div className="login-card">
+        <img src={logoProxxima} className="login-logo" alt="Logo Proxxima" />
+        <h3>Acesso ao NOC / Campo</h3>
+        <p>Identifique-se para gerenciar a rede.</p>
+        
+        <input type="text" placeholder="Usuário ou Matrícula" className="login-input" />
+        <input type="password" placeholder="Senha" className="login-input" />
+        
+        <button className="btn-login" onClick={() => {
+          setIsLoggedIn(true);
+          setUsuario({ nome: 'Amanda Leal', cargo: 'NOC' });
+        }}>
+          ENTRAR NO SISTEMA
+        </button>
+        <small>© 2026 Proxxima Telecom - Segurança Interna</small>
+      </div>
+    </div>
+  );
+}
+  const finalizarVinculo = () => {
+    if (!novoCliente.nome || !novoCliente.protocolo) return alert("Preencha os dados básicos!");
+
+    const novaLista = listaPortas.map(p => {
+      if (p.id === portaParaVincular) {
+        return {
+          ...p,
+          status: 'p-good',
+          cliente: novoCliente.nome,
+          sn: novoCliente.serial || 'SN-PENDENTE',
+          sinal: -18.5,
+          alarme: 'Sinal Normal'
+        };
+      }
+      return p;
+    });
+
+    setListaPortas(novaLista);
+    registrarLog("ATIVAÇÃO", `Porta ${portaParaVincular} vinculada à OS ${novoCliente.protocolo}`);
+    setModalAberto(false);
+    setNovoCliente({ nome: '', protocolo: '', serial: '' });
+    alert("Cliente provisionado com sucesso!");
+  };
+
+  // --- 3. RENDERIZAÇÃO ---
   return (
     <div className="app-container">
-      <aside className="sidebar">
-        <div style={{fontWeight: 800, fontSize: '1.4rem', marginBottom: '40px'}}>PROXXIMA.NOC</div>
-        <nav style={{flex: 1}}>
-          <div className="nav-link" style={{color: 'white', fontWeight: 600, marginBottom: '15px'}}>📍 Consulta de Rede</div>
-          <div style={{color: 'rgba(255,255,255,0.4)', marginBottom: '15px'}}>🖥️ Status OLTs</div>
-        </nav>
-        <div style={{padding: '15px', background: 'rgba(255,255,255,0.05)', borderRadius: '12px'}}>
-          <small style={{fontSize: '0.6rem', color: '#64748b'}}>OPERADOR:</small>
-          <div style={{fontWeight: 700}}>Amanda Leal (NOC)</div>
-        </div>
-      </aside>
+      {/* SIDEBAR RETRÁTIL COM LOGO */}
+<aside className={`sidebar ${menuAberto ? '' : 'collapsed'}`}>
+  <div style={{ display: 'flex', alignItems: 'center', justifyContent: menuAberto ? 'space-between' : 'center', marginBottom: '30px' }}>
+    {menuAberto ? (
+      <img src={logoProxxima} alt="Proxxima" className="logo-main" />
+    ) : (
+      <div style={{ background: 'var(--accent)', padding: '10px', borderRadius: '8px', fontWeight: 900, color: 'white' }}>P</div>
+    )}
+    <button onClick={() => setMenuAberto(!menuAberto)} style={{ background: 'none', border: 'none', color: 'white', cursor: 'pointer' }}>
+      {menuAberto ? '❮' : '❯'}
+    </button>
+  </div>
+
+  <nav style={{ flex: 1 }}>
+    <div className="nav-link" style={{ color: 'white', fontWeight: 600, marginBottom: '15px', display: 'flex', gap: '10px' }}>
+      <span>📍</span> {menuAberto && "Consulta de Rede"}
+    </div>
+    
+    <div className="nav-link" onClick={alternarTema} style={{ color: 'white', cursor: 'pointer', display: 'flex', gap: '10px' }}>
+      <span>{temaEscuro ? '☀️' : '🌙'}</span> {menuAberto && (temaEscuro ? "Modo Claro" : "Modo Escuro")}
+    </div>
+  </nav>
+
+  <div style={{ padding: '15px', background: 'rgba(255,255,255,0.05)', borderRadius: '12px' }}>
+    <div style={{ fontWeight: 700, fontSize: '0.8rem' }}>
+      {menuAberto ? "Amanda Leal (NOC)" : "AL"}
+    </div>
+  </div>
+</aside>
 
       <main className="main-content">
         <header style={{display: 'flex', justifyContent: 'space-between', marginBottom: '25px'}}>
@@ -94,7 +153,6 @@ const vincularOSManual = () => {
 
         {exibir && (
           <div className="dash-main-grid">
-            {/* COLUNA 1: OLT E DIAGNÓSTICO */}
             <div style={{display: 'flex', flexDirection: 'column', gap: '20px'}}>
               <article className="card-pro">
                 <div className="card-label">Hardware OLT</div>
@@ -123,12 +181,11 @@ const vincularOSManual = () => {
                     </div>
                   </div>
                 ) : (
-                  <p style={{color: '#64748b', fontSize: '0.75rem', textAlign: 'center', marginTop: '40px'}}>Selecione uma porta em alarme.</p>
+                  <p style={{color: '#64748b', fontSize: '0.75rem', textAlign: 'center', marginTop: '40px'}}>Selecione uma porta ocupada ou ative uma nova.</p>
                 )}
               </article>
             </div>
 
-            {/* COLUNA 2: MAPA (CENTRO) */}
             <article className="card-pro" style={{background: '#050810', display: 'flex', alignItems: 'center', justifyContent: 'center', position: 'relative'}}>
                <div style={{position: 'absolute', top: '20px', left: '20px', color: 'var(--accent)', fontSize: '0.65rem', fontWeight: 800}}>MAPA DE TOPOLOGIA</div>
                <div style={{textAlign: 'center'}}>
@@ -137,14 +194,14 @@ const vincularOSManual = () => {
                </div>
             </article>
 
-            {/* COLUNA 3: CTO COM ANIMAÇÕES */}
             <article className="card-pro">
               <div className="card-label">Portas CTO-CENTRO-01</div>
               <div className="port-grid">
                 {[...Array(16)].map((_, i) => {
-                  const p = dadosPortas.find(d => d.id === i+1) || { id: i+1, status: 'p-free' };
+                  const portaId = i + 1;
+                  const p = listaPortas.find(d => d.id === portaId) || { id: portaId, status: 'p-free' };
                   return (
-                    <div key={i} className={`port-node ${p.status}`} onClick={() => setPortaAtiva(p)}>{i+1}</div>
+                    <div key={i} className={`port-node ${p.status}`} onClick={() => handleCliquePorta(p)}>{portaId}</div>
                   );
                 })}
               </div>
@@ -158,7 +215,6 @@ const vincularOSManual = () => {
           </div>
         )}
 
-        {/* AUDITORIA NO RODAPÉ */}
         {exibir && (
           <section className="audit-section">
              <div style={{padding: '15px 20px', fontWeight: 800, fontSize: '0.8rem'}}>📜 Log de Auditoria & Alertas</div>
@@ -181,6 +237,41 @@ const vincularOSManual = () => {
           </section>
         )}
       </main>
+
+      {/* MODAL */}
+      {modalAberto && (
+        <div className="modal-overlay">
+          <div className="modal-container">
+            <div className="modal-header">
+              <span className="modal-title">🔧 Provisionar Porta {portaParaVincular}</span>
+            </div>
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '15px' }}>
+              <input 
+                className="input-os-tecnico" 
+                placeholder="Nome do Cliente"
+                value={novoCliente.nome}
+                onChange={(e) => setNovoCliente({...novoCliente, nome: e.target.value})}
+              />
+              <input 
+                className="input-os-tecnico" 
+                placeholder="Protocolo OS"
+                value={novoCliente.protocolo}
+                onChange={(e) => setNovoCliente({...novoCliente, protocolo: e.target.value})}
+              />
+              <input 
+                className="input-os-tecnico" 
+                placeholder="Serial ONU"
+                value={novoCliente.serial}
+                onChange={(e) => setNovoCliente({...novoCliente, serial: e.target.value})}
+              />
+            </div>
+            <div className="modal-footer">
+              <button className="btn-cancel" onClick={() => setModalAberto(false)}>Cancelar</button>
+              <button className="btn-save" onClick={finalizarVinculo}>VINCULAR</button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -1,68 +1,201 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@500&display=swap');
+ @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=JetBrains+Mono:wght@500&display=swap');
 
 :root {
-  --bg-deep: #0a0f1d;
-  --bg-card: #151c2f;
-  --accent: #0ea5e9;
-  --border: rgba(255, 255, 255, 0.08);
+  /* Dark Mode */
+  --bg-app: #050810;
+  --bg-card: #0f172a;
+  --bg-input: #060912;
+  --text-main: #f8fafc;
+  --text-sec: #94a3b8;
+  --border: rgba(255, 255, 255, 0.1);
+  /* Cores de Alerta (Globais) */
   --success: #10b981;
   --warning: #f59e0b;
   --danger: #ef4444;
-  --dying: #a855f7; /* Roxo para Dying Gasp */
+  --dying: #a855f7;
+  --accent: #0ea5e9;
+}
+/* Section Logo*/
+.logo-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 40px; 
+  transition: all 0.3s ease;
 }
 
-* { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Inter', sans-serif; }
-body { background: var(--bg-deep); color: #f8fafc; overflow-x: hidden; }
+.logo-main {
+  height: 100%; 
+  width: auto;
+  filter: none !important; 
+  animation: slideIn 0.4s ease-out;
+  transition: opacity 0.3s ease;
+}
 
-.app-container { display: flex; min-height: 100vh; }
+.logo-mini {
+  width: 35px;
+  height: 35px;
+  background: linear-gradient(135deg, #10b981, #059669); 
+  color: white;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 10px;
+  font-weight: 900;
+  box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+}
+
+.operator-card {
+  background: rgba(255, 255, 255, 0.1);
+  color: #ffffff !important; 
+  padding: 15px;
+  border-radius: 12px;
+  margin-top: auto;
+}
+/* Fix para os inputs que continuam pretos */
+input, select {
+  background-color: var(--bg-input) !important;
+  color: var(--text-main) !important;
+  border: 1px solid var(--border);
+}
+/* Overlay do Modal (Fundo Escuro) */
+.modal-overlay {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0, 0, 0, 0.85);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  backdrop-filter: blur(5px);
+}
+
+/* Troque o background fixo por var(--bg-app) */
+body { background: var(--bg-app); color: var(--text-main); overflow-x: hidden; transition: 0.3s; }
+
+.app-container { 
+  display: flex; 
+  min-height: 100vh;
+ }
 
 /* Sidebar */
-.sidebar {
-  width: 280px; background: linear-gradient(180deg, #0f172a 0%, #020c9c 100%);
-  position: fixed; height: 100vh; padding: 40px 20px; border-right: 1px solid var(--border);
-  display: flex; flex-direction: column; z-index: 100;
-}
 
+.sidebar {
+  width: 280px; 
+  background: linear-gradient(180deg, #0f172a 0%, #020c9c 100%);
+  position: fixed; 
+  height: 100vh; 
+  padding: 40px 20px; 
+  border-right: 1px solid var(--border);
+  display: flex; 
+  flex-direction: column; 
+  z-index: 100;
+
+}
 .main-content { flex: 1; margin-left: 280px; padding: 30px 40px; }
 
+
 /* Layout Grid */
-.dash-main-grid { display: grid; grid-template-columns: 320px 1fr 350px; gap: 20px; margin-top: 25px; }
 
-.card-pro { background: var(--bg-card); border-radius: 16px; padding: 22px; border: 1px solid var(--border); box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
-.card-label { font-size: 0.65rem; font-weight: 800; color: var(--accent); text-transform: uppercase; margin-bottom: 15px; letter-spacing: 1px; }
+.dash-main-grid {
+  display: grid;
+  grid-template-columns: 320px 1fr 350px; 
+  gap: 20px; 
+  margin-top: 25px; }
 
+.card-pro { 
+  background: var(--bg-card); 
+  border-radius: 16px; 
+  padding: 22px; 
+  border: 1px solid var(--border); 
+  box-shadow: 0 10px 30px rgba(0,0,0,0.3); 
+}
+
+.card-label { 
+  font-size: 0.65rem; 
+  font-weight: 800; 
+  color: var(--accent); 
+  text-transform: uppercase; 
+  margin-bottom: 15px; 
+  letter-spacing: 1px; 
+}
+
+
+/* ESTADOS DE HARDWARE */
+.p-free { 
+  background: #334155; 
+  color: #64748b; 
+}
+.p-good { 
+  background: var(--success); 
+  color: white; 
+}
+
+/* Section portas*/
+.port-node {
+  color: white !important; /* Força o número a ser branco em cima das cores */
+  font-weight: 800;
+  transition: transform 0.2s;
+}
+/* Garanta que o fundo das portas livres mude no modo claro */
+.p-free { 
+  background-color: #cbd5e1 !important; /* Cinza claro no modo light */
+  color: #64748b !important; 
+}
+/* No modo escuro, a porta livre volta a ser escura */
+[data-theme='dark'] .p-free { 
+  background-color: #334155 !important; 
+  color: #94a3b8 !important;
+}
+
+/* Forçar as cores dos estados */
+.p-good { background-color: var(--success) !important; }
+.p-warn { background-color: var(--warning) !important; }
+.p-loss { background-color: var(--danger) !important; }
+.p-dying { background-color: var(--dying) !important; }
+
+* { margin: 0; 
+  padding: 0; 
+  box-sizing: border-box; 
+  font-family: 'Inter', sans-serif; }
 /* Portas Dinâmicas */
-.port-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+.port-grid { 
+  display: grid; 
+  grid-template-columns: repeat(4, 1fr); 
+  gap: 10px; 
+}
 
 .port-node {
-  aspect-ratio: 1; border-radius: 8px; display: flex; align-items: center; justify-content: center;
+  aspect-ratio: 1;
+  border-radius: 8px; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center;
   font-weight: 800; font-size: 0.8rem; cursor: pointer; transition: 0.2s;
   border-bottom: 4px solid rgba(0,0,0,0.3);
 }
 
-/* ESTADOS DE HARDWARE */
-.p-free { background: #334155; color: #64748b; }
-.p-good { background: var(--success); color: white; }
-
-/* Alerta de Atenuação (Pulso Laranja) */
-.p-warn { 
-  background: var(--warning); color: white; 
+.p-warn {
+  background: var(--warning); 
+  color: white;
   animation: pulse-warn 2s infinite ease-in-out;
 }
 
-/* Loss of Signal (Pisca Vermelho Rápido) */
-.p-loss { 
-  background: var(--danger); color: white; 
+.p-loss {
+  background: var(--danger); 
+  color: white;
   animation: blink-danger 0.6s infinite steps(2);
 }
 
-/* Dying Gasp (Pulso Roxo Profundo) */
-.p-dying { 
-  background: var(--dying); color: white; 
+.p-dying {
+  background: var(--dying); 
+  color: white;
   animation: pulse-dying 1.5s infinite alternate;
 }
 
+
 /* KEYFRAMES */
+
 @keyframes blink-danger {
   from { opacity: 1; }
   to { opacity: 0.3; }
@@ -75,17 +208,46 @@ body { background: var(--bg-deep); color: #f8fafc; overflow-x: hidden; }
 }
 
 @keyframes pulse-dying {
-  from { filter: brightness(1); box-shadow: 0 0 5px var(--dying); }
-  to { filter: brightness(1.5); box-shadow: 0 0 20px var(--dying); }
+  from { filter: brightness(1); 
+    box-shadow: 0 0 5px var(--dying); 
+  }
+  to { filter: brightness(1.5); 
+    box-shadow: 0 0 20px var(--dying); 
+  }
 }
 
-/* Auditoria e Resto... (Mantido do anterior) */
-.audit-table { width: 100%; border-collapse: collapse; font-size: 0.8rem; }
-.audit-table th { background: rgba(0,0,0,0.3); padding: 15px 20px; text-align: left; color: var(--accent); }
-.audit-table td { padding: 12px 20px; border-bottom: 1px solid var(--border); color: #94a3b8; }
 
-.diag-bar-bg { width: 100%; height: 6px; background: #0a0f1d; border-radius: 10px; margin: 10px 0; overflow: hidden; }
-.diag-bar-fill { height: 100%; transition: 0.5s ease; }
+.audit-table { 
+  width: 100%; 
+  border-collapse: collapse; 
+  font-size: 0.8rem; 
+}
+.audit-table th {
+  background: rgba(0,0,0,0.3); 
+  padding: 15px 20px; 
+  text-align: left; 
+  color: var(--accent); 
+}
+
+.audit-table td { 
+  padding: 12px 20px; 
+  border-bottom: 1px solid var(--border); 
+  color: #94a3b8; 
+}
+
+.diag-bar-bg { 
+  width: 100%; 
+  height: 6px; 
+  background: #0a0f1d; 
+  border-radius: 10px; 
+  margin: 10px 0; 
+  overflow: hidden; 
+}
+.diag-bar-fill { 
+  height: 100%; 
+  transition: 0.5s ease; 
+}
+
 .os-ticket {
   background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%);
   border: 2px solid var(--accent);
@@ -119,8 +281,6 @@ body { background: var(--bg-deep); color: #f8fafc; overflow-x: hidden; }
   background: var(--accent);
   color: #000;
 }
-
-/* App.css - Fluxo de Despacho Independente */
 
 .briefing-card {
   background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
@@ -177,10 +337,12 @@ body { background: var(--bg-deep); color: #f8fafc; overflow-x: hidden; }
   transition: 0.3s;
 }
 
+
 .btn-vincular:hover {
   background: var(--success);
   color: white;
 }
+
 /* Container de Informação Técnica (NOC) */
 .tech-details {
   background: rgba(0, 0, 0, 0.2);
@@ -221,4 +383,208 @@ body { background: var(--bg-deep); color: #f8fafc; overflow-x: hidden; }
   text-transform: uppercase;
   margin-bottom: 10px;
   letter-spacing: 0.5px;
+}
+
+/* Container do Modal */
+.modal-container {
+  background: var(--bg-card);
+  width: 450px;
+  padding: 30px;
+  border-radius: 20px;
+  border: 1px solid var(--accent);
+  box-shadow: 0 0 50px rgba(14, 165, 233, 0.2);
+  animation: modalShow 0.3s cubic-bezier(0.18, 0.89, 0.32, 1.28);
+}
+
+@keyframes modalShow {
+  from { transform: scale(0.8); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+
+.modal-header { 
+  margin-bottom: 20px; 
+  border-bottom: 1px solid var(--border); 
+  padding-bottom: 15px; 
+}
+
+.modal-title { 
+  font-size: 1.1rem; 
+  font-weight: 800; color: #fff; 
+}
+
+.modal-footer {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  margin-top: 25px;
+}
+
+.btn-cancel { 
+  background: transparent; 
+  color: #64748b; 
+  border: 1px solid var(--border); 
+  padding: 10px 20px; 
+  border-radius: 8px; 
+  cursor: pointer; 
+}
+
+.btn-save { 
+  background: var(--success); 
+  color: #fff; 
+  border: none; 
+  padding: 10px 20px; 
+  border-radius: 8px; 
+  font-weight: 800; 
+  cursor: pointer; 
+}
+
+/*Layout principal */
+
+.app-container {
+  display: flex;
+  height: 100vh;
+  transition: margin-left 0.3s ease;
+}
+.toggle-btn {
+  background: transparent;
+  border: none;
+  color: #64748b;
+  cursor: pointer;
+  padding: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+  margin-bottom: 20px;
+}
+
+.toggle-btn:hover {
+  background: rgba(255,255,255,0.05);
+  color: white;
+}
+
+
+@keyframes slideIn {
+  from { opacity: 0; 
+    transform: translateX(-20px); 
+  }
+  to { opacity: 1; 
+    transform: translateX(0); 
+  }
+}
+
+:root {
+  --bg-app: #050810;
+  --bg-card: rgba(15, 23, 42, 0.8);
+  --text-main: #f8fafc;
+  --border: rgba(255, 255, 255, 0.1);
+}
+
+[data-theme='light'] {
+  --bg-app: #f1f5f9;
+  --bg-card: #ffffff;
+  --bg-input: #ffffff;
+  --text-main: #0f172a;
+  --text-sec: #475569;
+  --border: rgba(0, 0, 0, 0.1);
+  --accent: #0284c7;
+}
+[data-theme='light'] .logo-main {
+  filter: none(0) !important;
+}
+
+/* Sidebar Dinâmica */
+.sidebar {
+  width: 260px;
+  transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+  white-space: nowrap;
+  display: flex;
+  flex-direction: column;
+}
+
+.sidebar.collapsed {
+  width: 80px;
+}
+
+/* Adicione estas classes novas no final do CSS para a Sidebar e Logo */
+.sidebar.collapsed { width: 80px; }
+.sidebar.collapsed + .main-content { margin-left: 80px; }
+.sidebar { transition: width 0.3s ease; }
+.main-content { transition: margin-left 0.3s ease; }
+
+.logo-main { height: 35px; width: auto; transition: 0.3s; }
+[data-theme='light'] .logo-main { filter: brightness(0) saturate(100%) invert(14%); }
+
+.main-content { 
+  flex: 1; 
+  margin-left: 280px;
+  transition: margin-left 0.3s ease; 
+}
+.sidebar.collapsed + .main-content { 
+  margin-left: 80px;
+}
+/* Sidebar Reclusa Profissional */
+.sidebar.collapsed {
+  align-items: center; /* Centraliza tudo perfeitamente */
+}
+
+/* Avatar de Usuário */
+.user-avatar {
+  width: 45px;
+  height: 45px;
+  background: var(--accent);
+  border-radius: 50%; /* Círculo perfeito */
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  color: white;
+  cursor: pointer;
+  border: 2px solid rgba(255,255,255,0.1);
+  transition: 0.3s;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+}
+
+.user-avatar:hover {
+  transform: scale(1.1);
+  border-color: var(--success);
+}
+
+/* Tela de Login */
+.login-overlay {
+  height: 100vh; width: 100vw;
+  background: var(--bg-app);
+  display: flex; align-items: center; justify-content: center;
+}
+
+.login-card {
+  background: var(--bg-card);
+  padding: 40px; border-radius: 24px;
+  border: 1px solid var(--border);
+  text-align: center; width: 380px;
+  box-shadow: 0 20px 50px rgba(0,0,0,0.5);
+}
+
+.login-logo { 
+  width: 180px; 
+  margin-bottom: 25px; 
+}
+.login-input { 
+  width: 100%; 
+  margin-bottom: 15px; 
+  background: rgba(0,0,0,0.2); 
+  border: 1px solid var(--border); 
+  padding: 15px; border-radius: 12px; 
+  color: white; 
+}
+.btn-login { 
+  width: 100%; 
+  padding: 15px; 
+  background: var(--accent); 
+  color: white; 
+  border: none; 
+  border-radius: 12px; 
+  font-weight: 800; 
+  cursor: pointer; 
 }
